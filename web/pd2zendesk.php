@@ -42,13 +42,16 @@ if ($messages) foreach ($messages->messages as $webhook) {
       $verb = "resolved";
       $action_message = " by " . $webhook->data->incident->resolved_by_user->name;
       break;
+    case "incident.escalate"
+      $verb= "escalated"
+      break;
     default:
       continue 2;
   }
   //Update the Zendesk ticket when the incident is acknowledged or resolved.
   $url = "https://$zd_subdomain.zendesk.com/api/v2/tickets/$ticket_id.json";
 
-  $data = array('ticket'=>array('comment'=>array('public'=>'false','body'=>"This ticket has been $verb" . $action_message . " in PagerDuty.  To view the incident, go to $ticket_url.")));
+  $data = array('ticket'=>array('comment'=>array('public'=>'false','body'=>"This ticket has been $verb -$pd_requester_id-" . $action_message . " in PagerDuty.  To view the incident, go to $ticket_url.")));
   $data_json = json_encode($data);
 
   $status_code = http_request($url, $data_json, "PUT", "basic", $zd_username, $zd_api_token);
